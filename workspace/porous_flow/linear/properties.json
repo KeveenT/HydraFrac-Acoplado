@@ -1,0 +1,16 @@
+{
+    "Body":
+    {
+        "Porosity": 0.2,
+
+        "Permeability": 1e-15,
+
+        "Viscosity": 1e-3,
+
+        "FluidCompressibility": 5e-10,
+
+        "Density": 1000,
+
+        "FluxGeneration": 0.0
+    }
+}
