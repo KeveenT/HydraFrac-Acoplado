@@ -23,9 +23,6 @@ PERMEABILITY = properties['Body']['Permeability'] #m²
 INITIAL_PRESSURE = boundaries['InitialValue'] #Pa
 
 nx = mesh_reader.get_nx() #Nบmero de Volumes
-# FRAC_LENGTH = mesh_reader.get_frac_length()
-# dx = geo_generator.get_dx()
-# ds = mesh_reader.get_ds()
 Ln, Ls = mesh_reader.get_Lns()
 mesh = mesh_reader.mesh
 NEIGHBORS_SUP = mesh_reader.get_neighbors_sup()

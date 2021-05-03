@@ -145,7 +145,7 @@ def get_A(S_star): #Retorna a matriz A com os termos advectivos
 def get_b(S_old, Pn, Ps):
     P_entrada = 5e6
     b = np.zeros((nu+nx,1))
-    massa = 0.005*DENSITY
+    # massa = 0.005*DENSITY
     for i in range(0, nu):
         b[i] = ((DENSITY * dxu[i] * D[i] * S_old[i]) / (dt))
     # b[nx] = 0#b[nx-1]
