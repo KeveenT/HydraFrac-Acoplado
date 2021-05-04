@@ -63,7 +63,7 @@ def get_width():
     elif OPENING_TYPE == 'Variável': #Abertura Variável
         width = np.zeros(NUMBER_NODES_FRAC)
         width[0] = FRAC_INITIAL_OPENING/2
-        width[-1] = FRAC_INITIAL_OPENING/20
+        width[-1] = 0.0
         slope = (width[-1]-(width[0] ))/(FRAC_LENGTH-0) #y2-y2/x2-x1
         for i in range(1, NUMBER_NODES_FRAC-1):
             width[i] = width[i-1] + ((xu[i]-xu[i-1])*slope)

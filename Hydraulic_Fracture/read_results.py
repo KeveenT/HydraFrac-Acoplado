@@ -108,13 +108,14 @@ def get_leakoff():
     leakoff = np.zeros(len(leak_sup))
     for i in range(0, len(leakoff)):
         leakoff[i] = leak_sup[i] + leak_inf[i]
-    np.savetxt("/home/keveent/PyEFVLib/Hydraulic_Fracture/Resultados/leakoff.csv", leakoff, delimiter=",")
+    # np.savetxt("/home/keveent/PyEFVLib/Hydraulic_Fracture/Resultados/leakoff.csv", leakoff, delimiter=",")
     return leak_sup, leak_inf
 
 def get_mass_conservation_ns(u, leak_sup, leak_inf):
     mass_conservation_ns = []
     for i in range(0, len(D)-1):
-        mass_conservation_ns.append((u[i+1]*D[i+1])-(u[i]*D[i]-(leak_inf[i]+leak_sup[i])))
+        # mass_conservation_ns.append((u[i+1]*D[i+1])-(u[i]*D[i]-(leak_inf[i]+leak_sup[i])))
+        mass_conservation_ns.append((u[i]*D[i])-(leak_inf[i]+leak_sup[i]+u[i+1]*D[i+1]))
     mass_conservation_ns = np.array(mass_conservation_ns, dtype=float)
     return mass_conservation_ns
 
@@ -144,7 +145,7 @@ plt.figure()
 
 u, Pf = get_u_and_p(RESULTS_TYPE)
 
-plt.ticklabel_format(axis="y", useOffset=False, style="plain")
+plt.ticklabel_format(axis="y", useOffset=False, style="sci")
 plt.plot(xp, Pf, linewidth=1.5)
 plt.xlabel("Comprimento da Fratura [m]")
 plt.ylabel("Pressão [Pa]")
@@ -170,8 +171,8 @@ plt.figure()
 
 leak_sup, leak_inf = get_leakoff()
 plt.ticklabel_format(axis="y", useOffset=False, style="sci")
-plt.plot(leak_sup, label='Leakoff na Face Superior')
-plt.plot(leak_inf, marker='.', markerfacecolor='k', markeredgecolor='k', markersize=6, linestyle='None',  label='Leakoff na Face Inferior')
+plt.plot(xp, leak_sup, label='Leakoff na Face Superior')
+plt.plot(xp, leak_inf, marker='.', markerfacecolor='k', markeredgecolor='k', markersize=6, linestyle='None',  label='Leakoff na Face Inferior')
 plt.xlabel("Comprimento da Fratura [m]")
 plt.ylabel("Leakoff [m²/s]")
 plt.grid()
@@ -196,7 +197,8 @@ plt.grid()
 plt.savefig('/home/keveent/PyEFVLib/Hydraulic_Fracture/Resultados/fluxo.pdf', dpi=1200)
 plt.figure()
 
-pressure_field = get_pressure_field()
-np.savetxt("/home/keveent/PyEFVLib/Hydraulic_Fracture/Resultados/final_pressure_field.csv", pressure_field, delimiter=",")
+# pressure_field = get_pressure_field()
+# np.savetxt("/home/keveent/PyEFVLib/Hydraulic_Fracture/Resultados/final_pressure_field.csv", pressure_field, delimiter=",")
 
 plt.show()
+

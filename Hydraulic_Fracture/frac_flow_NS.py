@@ -107,7 +107,7 @@ def build_A(): #Monta a matriz A
     # A[0, 0] = 1
     for i in range(nx, nx+nu):
         A[nx, i-1] = 0
-    A[nx, nx-1] = -1
+    # A[nx, nx-1] = -1
     A[nx, nx] = 1
     return A
 
@@ -137,7 +137,7 @@ def get_A(S_star): #Retorna a matriz A com os termos advectivos
     # A[0, 0] = 1
     for i in range(nx, nx+nu):
         A[nx, i-1] = 0
-    A[nx, nx-1] = -1
+    # A[nx, nx-1] = -1
     A[nx, nx] = 1
     return A
 
@@ -148,7 +148,7 @@ def get_b(S_old, Pn, Ps):
     # massa = 0.005*DENSITY
     for i in range(0, nu):
         b[i] = ((DENSITY * dxu[i] * D[i] * S_old[i]) / (dt))
-    # b[nx] = 0#b[nx-1]
+    # b[nx] = 0
     i = 0
     k = 0
     while i < nx:
