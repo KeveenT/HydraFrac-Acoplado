@@ -57,9 +57,6 @@ def get_width():
     xp, xu = get_x()
     if OPENING_TYPE == 'Constante':
         width = np.full((NUMBER_NODES_FRAC,), FRAC_INITIAL_OPENING) #Abertura Constante
-    # elif OPENING_TYPE == 'Variável': #Abertura Variável
-        # width = np.linspace(FRAC_INITIAL_OPENING, 0, 
-        #                            num=NUMBER_NODES_FRAC, endpoint=True)
     elif OPENING_TYPE == 'Variável': #Abertura Variável
         width = np.zeros(NUMBER_NODES_FRAC)
         width[0] = FRAC_INITIAL_OPENING/2

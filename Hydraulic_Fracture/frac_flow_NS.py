@@ -1,7 +1,7 @@
 from scipy.linalg import lu_factor, lu_solve
 import matplotlib.pyplot as plt
 import numpy as np
-import csv
+# import csv
 import json
 import mesh_reader
 import leakoff
@@ -195,6 +195,8 @@ def checkS(S_Old, S):
     if max(abs((Sfrac - S_Old)/(max(Sfrac) - min(Sfrac)))) < tol:
         check = 'Converged'
         print('Pressão na Fratura Convergida')
+        # if np.allclose(np.dot(A, S_star), b) == False:
+        #     print('Vetor Solução não satisfaz as matrizes')
     else:
         check = 'Not Converged'
     return check
