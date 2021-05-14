@@ -143,7 +143,7 @@ def get_A(S_star): #Retorna a matriz A com os termos advectivos
 
 #Construção do Termo Fonte
 def get_b(S_old, Pn, Ps):
-    P_entrada = 5e6
+    P_entrada = 5e2
     b = np.zeros((nu+nx,1))
     # massa = 0.005*DENSITY
     for i in range(0, nu):

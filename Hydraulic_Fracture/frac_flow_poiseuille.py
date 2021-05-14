@@ -95,9 +95,9 @@ def get_A():
     for k in range(0, nx-1):
          A[k, k+1] = -Ae[k]
     # A[0, 0] = Ae[0] + An[0] + As[0] + Ap0[0]
-    A[-1, -1] = Aw[-1] + An[-1] + As[-1] + Ap0[-1]
     A[0, 0] = Ap0[0] + Ae[0] + 2*Aw[0] + An[0] + As[0]
-    # A[-1, -1] = Ap0[-1] + Aw[-1] + 2*Ae[-1] + An[-1] + As[-1]
+    # A[-1, -1] = Aw[-1] + An[-1] + As[-1] + Ap0[-1]
+    A[-1, -1] = Ap0[-1] + Aw[-1] + 2*Ae[-1] + An[-1] + As[-1]
     return A
 
 #Construção do Termo Fonte
@@ -107,7 +107,8 @@ def get_b(Pf_Old, Pn, Ps):
     Ap0 = get_Ap0()
     Aw = get_Aw()
     Ae = get_Ae()
-    Pbw = 1e3
+    Pbw = 1e6
+    Pbe = 1e3
     An = get_An()
     As = get_As()
     # Ps = np.flip(Ps)
@@ -121,9 +122,9 @@ def get_b(Pf_Old, Pn, Ps):
             j = j + 1
         k = k + 1
     # b[0] +=  Pn[0]*An[0] + Ps[0]*As[0] + INJECTION + Ap0[0]*Pf_Old[0]
-    b[-1] =  Pn[-1]*An[-1] + Ps[-1]*As[-1] + 0 + Ap0[-1]*Pf_Old[-1]
+    # b[-1] =  Pn[-1]*An[-1] + Ps[-1]*As[-1] + 0 + Ap0[-1]*Pf_Old[-1]
     b[0] = Ap0[0]*Pf_Old[0] + Pn[0]*An[0] + Ps[0]*As[0] + 2*Aw[0]*Pbw
-    # b[-1] = Ap0[-1]*Pf_Old[-1] + Pn[-1]*An[-1] + Ps[-1]*As[-1] + 2*Ae[-1]*0
+    b[-1] = Ap0[-1]*Pf_Old[-1] + Pn[-1]*An[-1] + Ps[-1]*As[-1] + 2*Ae[-1]*Pbe
     return b
 
 def get_initial_Pf():
@@ -135,18 +136,20 @@ def solve(Pf_Old, Pn, Ps):
     b = get_b(Pf_Old, Pn, Ps)
     lu, piv = lu_factor(A)
     Pf = lu_solve((lu, piv), b)
-    if np.allclose(np.dot(A, Pf), b) == True:
-        print('Solução Encontrada')
-    else:
-        print('Não foi obtida uma solução')
+    # if np.allclose(np.dot(A, Pf), b) == True:
+    #     print('Solução Encontrada')
+    # else:
+    #     print('Não foi obtida uma solução')
     return Pf
 
 def get_u(Pf):
-    Pbw = 1e3
+    Pbw = 1e6
+    Pbe = 1e3
     u = np.zeros((len(D),1))
     for i in range(1, len(D)-1):
         u[i] = (((Pf[i-1]-Pf[i])/dxu[i]) * ((D[i]**2) / (12 * VISCOSITY)))
     u[0] = (((Pbw-Pf[0])/(dxu[0]/2)) * ((D[0]**2) / (12 * VISCOSITY))) #CC Pressão
+    u[-1] = (((Pf[-1]-Pbe)/dxu[-1]) * ((D[-1]**2) / (12 * VISCOSITY)))
     # u[0] = INJECTION/(D[0]) #CC Vazão
     return u
 
@@ -155,7 +158,7 @@ def checkConvergence(Pf_Old, Pf):
     print('Diferença Solução:', max(abs((Pfrac - Pf_Old)/(max(Pfrac) - min(Pfrac)))))
     if max(abs((Pfrac - Pf_Old)/(max(Pfrac) - min(Pfrac)))) < tol:
         check = 'Converged'
-        print('Convergido')
+        print('Pressão na Fratura Convergida')
     else:
         check = 'Not Converged'
     return check

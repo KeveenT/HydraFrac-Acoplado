@@ -70,7 +70,7 @@ def get_leakoff_frac(Pf, Pn, Ps):
     return leak_sup, leak_inf
 
 def leakoff_check(iterator, leak_sup, leak_inf, leak_sup_old, leak_inf_old):
-    tol = 1e-3
+    tol = 1e-7
     max = 1000
     print('Diferença Leakoff Sup:', np.max(abs((leak_sup- leak_sup_old)/(np.max(leak_sup) - np.min(leak_sup)))))
     print('Diferença Leakoff Inf:', np.max(abs((leak_inf- leak_inf_old)/(np.max(leak_inf) - np.min(leak_inf)))))
@@ -81,19 +81,3 @@ def leakoff_check(iterator, leak_sup, leak_inf, leak_sup_old, leak_inf_old):
     else:
         check = 'Not Converged'
     return check
-
-def get_reynolds(u):
-    D, Dp = mesh_reader.get_width()
-    Re = np.zeros(len(D))
-    for i in range(0, len(D)):
-        Re[i] = (DENSITY * u[i] * 2 * D[i]) / VISCOSITY
-    return Re
-
-def get_mass_conservation(u, leak_inf, leak_sup):
-    D, Dp = mesh_reader.get_width()
-    leak_inf = np.unique(leak_inf)
-    leak_sup = np.unique(leak_sup)
-    mass_conservation = []
-    for i in range(0, len(D)-1):
-        mass_conservation.append((u[i+1]*D[i+1])-(u[i]*D[i]-(leak_inf[i]+leak_sup[i])))
-    return mass_conservation

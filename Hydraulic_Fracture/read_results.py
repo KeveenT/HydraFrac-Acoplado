@@ -14,7 +14,7 @@ L = mesh_reader.get_frac_length()
 dx = geo_generator.get_dx()
 
 RESULTS_TYPE = 'Navier-Stokes'
-# RESULTS_TYPE = 'Poiseuille'
+RESULTS_TYPE = 'Poiseuille'
 
 if RESULTS_TYPE == 'Navier-Stokes':
     leak_sup_file = '/home/keveent/PyEFVLib/Hydraulic_Fracture/Resultados/leakoff_superior_ns.csv'
