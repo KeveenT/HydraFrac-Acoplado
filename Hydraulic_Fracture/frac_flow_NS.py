@@ -143,9 +143,9 @@ def get_A(S_star): #Retorna a matriz A com os termos advectivos
 
 #Construção do Termo Fonte
 def get_b(S_old, Pn, Ps):
-    P_entrada = 5e2
+    P_entrada = 5e6
     b = np.zeros((nu+nx,1))
-    # massa = 0.005*DENSITY
+    massa = 0.0005*DENSITY
     for i in range(0, nu):
         b[i] = ((DENSITY * dxu[i] * D[i] * S_old[i]) / (dt))
     # b[nx] = 0
@@ -191,7 +191,7 @@ def get_u_and_p(S_star, u, Pf):
 
 def checkS(S_Old, S):
     Sfrac = S[-1]
-    print('Diferença Solução:', max(abs((Sfrac - S_Old)/(max(Sfrac) - min(Sfrac))))[0])
+    print('Diferença Solução na Fratura:', max(abs((Sfrac - S_Old)/(max(Sfrac) - min(Sfrac))))[0])
     if max(abs((Sfrac - S_Old)/(max(Sfrac) - min(Sfrac)))) < tol:
         check = 'Converged'
         print('Pressão na Fratura Convergida')

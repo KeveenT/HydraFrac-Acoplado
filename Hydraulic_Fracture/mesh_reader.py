@@ -9,6 +9,7 @@ mesh = meshio.read("/home/keveent/PyEFVLib/meshes/msh/2D/mesh_frac.msh")
 
 BOUNDARY_SUP = 'Sup'
 BOUNDARY_INF = 'Inf'
+TIP = 'Ponta'
 
 def get_nx():
     global nx
@@ -21,28 +22,22 @@ def get_frac_length():
     frac_length = int(FRAC_LENGTH)
     return frac_length
 
-def get_nodes_coord_sup(BOUNDARY_SUP):
-    physical_index_sup = mesh.field_data[BOUNDARY_SUP][0]
-    edges_index_sup = np.where(mesh.cell_data['gmsh:physical'][0] == physical_index_sup)[0]
-    nodes_index_sup = mesh.cells[0][1][edges_index_sup]
-    nodes_coord_sup = mesh.points[np.unique(nodes_index_sup)]
-    return nodes_index_sup, nodes_coord_sup
+def get_nodes_coord(BOUNDARY):
+    physical_index = mesh.field_data[BOUNDARY][0]
+    edges_index = np.where(mesh.cell_data['gmsh:physical'][0] == physical_index)[0]
+    nodes_index = mesh.cells[0][1][edges_index]
+    nodes_coord = mesh.points[np.unique(nodes_index)]
+    return nodes_index, nodes_coord
 
-def get_nodes_coord_inf(BOUNDARY_INF):
-    physical_index_inf = mesh.field_data[BOUNDARY_INF][0]
-    edges_index_inf = np.where(mesh.cell_data['gmsh:physical'][0] == physical_index_inf)[0]
-    nodes_index_inf = mesh.cells[0][1][edges_index_inf]
-    nodes_coord_inf = mesh.points[np.unique(nodes_index_inf)]
-    return nodes_index_inf, nodes_coord_inf
-
-NODES_INDEX_SUP, NODES_COORD_SUP = get_nodes_coord_sup(BOUNDARY_SUP)
-NODES_INDEX_INF, NODES_COORD_INF = get_nodes_coord_inf(BOUNDARY_INF)
+NODES_INDEX_SUP, NODES_COORD_SUP = get_nodes_coord(BOUNDARY_SUP)
+NODES_INDEX_INF, NODES_COORD_INF = get_nodes_coord(BOUNDARY_INF)
+if OPENING_TYPE == 'Constante':
+    NODES_INDEX_TIP, NODES_COORD_TIP = get_nodes_coord(TIP)
 
 if nx/len(NODES_INDEX_SUP) != VOL_ELEM_RATIO or nx/len(NODES_INDEX_INF) != VOL_ELEM_RATIO:
     print('Proporção de volumes para elementos na fronteira não respeita a razão estabelecida!')
 
 def get_x():
-    # xu = np.linspace(0, FRAC_LENGTH, num=NUMBER_NODES_FRAC, endpoint=True)
     dx = geo_generator.get_dx()
     xu = np.zeros(NUMBER_NODES_FRAC)
     for i in range(1, NUMBER_NODES_FRAC):
@@ -72,57 +67,37 @@ def get_width():
     width_center = np.array(width_center, dtype=float)
     return width, width_center
 
-def get_neighbors_sup():
-    elements_neighbors_sup = []
-    for i in range(0, len(NODES_INDEX_SUP)):
+def get_neighbors(NODES_INDEX):
+    elements_neighbors = []
+    for i in range(0, len(NODES_INDEX)):
         for j in range(0, len(mesh.cells[-1][1])):
-            if NODES_INDEX_SUP[i][0] in mesh.cells[-1][1][j] and NODES_INDEX_SUP[i][1] in mesh.cells[-1][1][j]:
-                elements_neighbors_sup.append(j)
-    elements_neighbors_sup = np.array(elements_neighbors_sup, dtype=int)
-    return elements_neighbors_sup
+            if NODES_INDEX[i][0] in mesh.cells[-1][1][j] and NODES_INDEX[i][1] in mesh.cells[-1][1][j]:
+                elements_neighbors.append(j)
+    elements_neighbors = np.array(elements_neighbors, dtype=int)
+    return elements_neighbors
 
-def get_neighbors_inf():
-    elements_neighbors_inf = []
-    for i in range(0, len(NODES_INDEX_INF)):
-        for j in range(0, len(mesh.cells[-1][1])):
-            if NODES_INDEX_INF[i][0] in mesh.cells[-1][1][j] and NODES_INDEX_INF[i][1] in mesh.cells[-1][1][j]:
-                elements_neighbors_inf.append(j)
-    elements_neighbors_inf = np.array(elements_neighbors_inf, dtype=int)
-    return elements_neighbors_inf
+def get_nodes_neighbors(NODES_INDEX):
+    elements_neighbors = get_neighbors(NODES_INDEX)
+    nodes_neighbors = mesh.cells[-1][1][elements_neighbors]
+    return nodes_neighbors
 
-def get_nodes_neighbors_sup():
-    elements_neighbors_sup = get_neighbors_sup()
-    nodes_neighbors_sup = mesh.cells[-1][1][elements_neighbors_sup]
-    return nodes_neighbors_sup
+def get_centerx_neighbors(NODES_INDEX):
+    elements_neighbors = get_neighbors(NODES_INDEX)
+    nodes_neighbors = mesh.cells[-1][1][elements_neighbors]
+    centerx_neighbors = []
+    for i in range(0, len(NODES_INDEX)):
+        centerx_neighbors.append(np.mean(mesh.points[nodes_neighbors[i]][:,0]))
+    centerx_neighbors = np.array(centerx_neighbors, dtype=float)
+    return centerx_neighbors
 
-def get_nodes_neighbors_inf():
-    elements_neighbors_inf = get_neighbors_inf()
-    nodes_neighbors_inf = mesh.cells[-1][1][elements_neighbors_inf]
-    return nodes_neighbors_inf
-
-def get_centerx_neighbors():
-    nodes_neighbors_sup = get_nodes_neighbors_sup()
-    nodes_neighbors_inf = get_nodes_neighbors_inf()
-    centerx_neighbors_sup = []
-    centerx_neighbors_inf = []
-    for i in range(0, len(NODES_INDEX_SUP)):
-        centerx_neighbors_sup.append(np.mean(mesh.points[nodes_neighbors_sup[i]][:,0]))
-        centerx_neighbors_inf.append(np.mean(mesh.points[nodes_neighbors_inf[i]][:,0]))
-    centerx_neighbors_sup = np.array(centerx_neighbors_sup, dtype=float)
-    centerx_neighbors_inf = np.array(centerx_neighbors_inf, dtype=float)
-    return centerx_neighbors_sup, centerx_neighbors_inf
-
-def get_centery_neighbors():
-    nodes_neighbors_sup = get_nodes_neighbors_sup()
-    nodes_neighbors_inf = get_nodes_neighbors_inf()
-    centery_neighbors_sup = []
-    centery_neighbors_inf = []
-    for i in range(0, len(NODES_INDEX_SUP)):
-        centery_neighbors_sup.append(np.mean(mesh.points[nodes_neighbors_sup[i]][:,1]))
-        centery_neighbors_inf.append(np.mean(mesh.points[nodes_neighbors_inf[i]][:,1]))
-    centery_neighbors_sup = np.array(centery_neighbors_sup, dtype=float)
-    centery_neighbors_inf = np.array(centery_neighbors_inf, dtype=float)
-    return centery_neighbors_sup, centery_neighbors_inf
+def get_centery_neighbors(NODES_INDEX):
+    elements_neighbors = get_neighbors(NODES_INDEX)
+    nodes_neighbors = mesh.cells[-1][1][elements_neighbors]
+    centery_neighbors = []
+    for i in range(0, len(NODES_INDEX)):
+        centery_neighbors.append(np.mean(mesh.points[nodes_neighbors[i]][:,1]))
+    centery_neighbors = np.array(centery_neighbors, dtype=float)
+    return centery_neighbors
 
 def get_centery_faces():
     D, Dp = get_width()
@@ -138,8 +113,10 @@ def get_centery_faces():
     return centery_sup, centery_inf
 
 def get_Lns():
-    centery_neighbors_sup, centery_neighbors_inf = get_centery_neighbors()
-    centerx_neighbors_sup, centerx_neighbors_inf = get_centerx_neighbors()
+    centery_neighbors_sup = get_centery_neighbors(NODES_INDEX_SUP)
+    centery_neighbors_inf = get_centery_neighbors(NODES_INDEX_INF)
+    centerx_neighbors_sup = get_centerx_neighbors(NODES_INDEX_SUP)
+    centerx_neighbors_inf = get_centerx_neighbors(NODES_INDEX_INF)
     centery_sup, centery_inf = get_centery_faces()
     centery_neighbors_inf = np.flip(centery_neighbors_inf)
     centerx_neighbors_inf = np.flip(centerx_neighbors_inf)
@@ -161,6 +138,18 @@ def get_Lns():
     Ls = np.array(Ls, dtype=float)
     return Ln, Ls
 
+def get_Ltip():
+    centery_neighbors = get_centery_neighbors(NODES_INDEX_TIP)
+    centerx_neighbors = get_centerx_neighbors(NODES_INDEX_TIP)
+    Ltip = math.hypot(FRAC_LENGTH - centerx_neighbors, (MEDIUM_HEIGHT/2) - centery_neighbors)
+    Ltip = np.array(Ltip, dtype=float)
+    return Ltip
+
+def get_ds_tip():
+    D, Dp = get_width()
+    ds_tip = D[-1]
+    return ds_tip
+
 def get_ds():
     D, Dp = get_width()
     xp, xu = get_x()
@@ -170,10 +159,3 @@ def get_ds():
     ds = np.array(ds, dtype=float)
     return ds
 
-# dx = get_dx()
-# D, Dp = get_width()
-# xp, xu = get_x()
-# Ln, Ls = get_Lns()
-# ds = get_ds()
-
-# print(datetime.datetime.now() - begin_time)

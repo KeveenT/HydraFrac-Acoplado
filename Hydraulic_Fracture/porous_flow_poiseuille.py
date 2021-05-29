@@ -10,6 +10,7 @@ import frac_flow_poiseuille
 import leakoff
 import csv
 import datetime
+from geo_generator import OPENING_TYPE
 
 class HeatTransferSolver(Solver):
     def __init__(self, workspaceDirectory, **kwargs):
@@ -42,9 +43,17 @@ class HeatTransferSolver(Solver):
         ufrac.append(u)
         Pf_Old = Pf[-1]
         Pn, Ps = leakoff.get_Pns(pressureField[-1])
-        Pf.append(frac_flow_poiseuille.solve(Pf_Old, Pn, Ps))
+                
         
+        if OPENING_TYPE == 'Constante':
+            global leak_tip_old
+            Ptip = leakoff.get_Ptip(pressureField[-1])
+            Pf.append(frac_flow_poiseuille.solve_tip(Pf_Old, Pn, Ps, Ptip))
+            leak_tip_old = leakoff.get_leakoff_tip(Pf, Ptip)
+        else:
+            Pf.append(frac_flow_poiseuille.solve(Pf_Old, Pn, Ps))
         leak_sup_old, leak_inf_old = leakoff.get_leakoff_frac(Pf, Pn, Ps)
+        
         leakoff_iterator = []
         self.assembleMatrix()
         checkPressure = 'Not Converged'
@@ -61,9 +70,18 @@ class HeatTransferSolver(Solver):
                 check = leakoff.leakoff_check(iterator, leak_sup, leak_inf, leak_sup_old, leak_inf_old)
                 leak_sup_old = leak_sup.copy()
                 leak_inf_old = leak_inf.copy()
-                Pf[-1] = frac_flow_poiseuille.solve(Pf_Old, Pn, Ps) #Poiseuille
+                if OPENING_TYPE == 'Constante':
+                    Ptip = leakoff.get_Ptip(pressureField[-1])
+                    leak_tip = leakoff.get_leakoff_tip(Pf, Ptip)
+                    leak_tip_old = leak_tip.copy()
+                    Pf[-1] = frac_flow_poiseuille.solve_tip(Pf_Old, Pn, Ps, Ptip)
+                else:
+                    Pf[-1] = frac_flow_poiseuille.solve(Pf_Old, Pn, Ps) #Poiseuille
                 iterator = iterator + 1
-            u[-1] = frac_flow_poiseuille.get_u(Pf[-1]) #Poiseuille
+            if OPENING_TYPE == 'Constante':
+                u[-1] = frac_flow_poiseuille.get_u_tip(Pf[-1], Ptip)
+            else:
+                u[-1] = frac_flow_poiseuille.get_u(Pf[-1]) #Poiseuille
             leakoff_iterator.append(iterator)
             self.currentTime += self.timeStep
             self.saveIterationResults()
@@ -187,6 +205,14 @@ class HeatTransferSolver(Solver):
                 for outerFace in facet.outerFaces:
                     self.independent[outerFace.vertex.handle] += leak_inf_old[j] * np.linalg.norm(outerFace.area.getCoordinates())
                     j = j + 1
+
+            if OPENING_TYPE == 'Constante':
+                tip = [boundary for boundary in self.grid.boundaries if boundary.name == "Ponta"][0]
+                i = 0
+                for facet in tip.facets:
+                    for outerFace in facet.outerFaces:
+                        self.independent[outerFace.vertex.handle] += leak_tip_old[i] * np.linalg.norm(outerFace.area.getCoordinates())
+                        i = i + 1
 
         def dirichletBoundaryCondition():
             # Dirichlet Boundary Condition
