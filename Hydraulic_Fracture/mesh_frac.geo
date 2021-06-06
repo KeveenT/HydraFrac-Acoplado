@@ -70,31 +70,31 @@ Physical Curve("Inf") = {9};
 
 Physical Surface("Body") =  {1, 2, 3, 4};
 
-Transfinite Curve 1 = 11 Using Progression 1;
+Transfinite Curve 1 = 41 Using Progression 1;
 
-Transfinite Curve 2 = 8 Using Progression 1;
+Transfinite Curve 2 = 32 Using Progression 1;
 
 Transfinite Curve 3 = 24 Using Progression 1;
 
 Transfinite Curve 4 = 24 Using Progression 1;
 
-Transfinite Curve 5 = 8 Using Progression 1;
+Transfinite Curve 5 = 32 Using Progression 1;
 
-Transfinite Curve 6 = 11 Using Progression 1;
+Transfinite Curve 6 = 41 Using Progression 1;
 
 Transfinite Curve 7 = 24 Using Progression 1;
 
 Transfinite Curve 10 = 24 Using Progression 1;
 
-Transfinite Curve 8 = 11 Using Progression 1;
+Transfinite Curve 8 = 41 Using Progression 1;
 
-Transfinite Curve 9 = 11 Using Progression 1;
+Transfinite Curve 9 = 41 Using Progression 1;
 
 Transfinite Curve 11 = 24 Using Progression 1;
 
 Transfinite Curve 12 = 24 Using Progression 1;
 
-Transfinite Curve 13 = 8 Using Progression 1;
+Transfinite Curve 13 = 32 Using Progression 1;
 
 Transfinite Surface {1};
 Transfinite Surface {2};

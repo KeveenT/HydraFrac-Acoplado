@@ -17,7 +17,7 @@ MEDIUM_WIDTH = 18
 MESH_TYPE = 'Structured'
 # MESH_TYPE = 'Unstructured'
 
-NUMBER_NODES_FRAC = int(11)
+NUMBER_NODES_FRAC = int(41)
 NUMBER_VOL_FRAC = int(NUMBER_NODES_FRAC-1)
 
 #Malha com não coincidência entre volumes e elementos
