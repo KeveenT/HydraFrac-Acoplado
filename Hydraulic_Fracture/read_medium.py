@@ -50,7 +50,12 @@ np.savetxt("/home/keveent/PyEFVLib/Hydraulic_Fracture/Resultados/final_pressure_
 
 CONTORNO = plt.tricontourf(X, Y, FINAL_PRESSURE, 120)
 COLOR_BAR = plt.colorbar()
-COLOR_BAR.set_label('Pressão [Pa]')
+COLOR_BAR.set_label('Pressão [Pa]', fontsize=12)
+plt.xlabel("Largura [m]", fontsize=12)
+plt.ylabel("Altura [m]", fontsize=12)
+plt.xticks(fontsize=12)
+plt.yticks(fontsize=12)
+COLOR_BAR.ax.tick_params(labelsize=12) 
 plt.savefig('/home/keveent/PyEFVLib/Hydraulic_Fracture/Resultados/contorno_press', dpi=1200)
 plt.figure()
 
@@ -79,9 +84,11 @@ np.savetxt("/home/keveent/PyEFVLib/Hydraulic_Fracture/Resultados/pn.csv", Pn, de
 np.savetxt("/home/keveent/PyEFVLib/Hydraulic_Fracture/Resultados/ps.csv", Ps, delimiter=",")
 plt.plot(xp, Pn, label='Pressão Média Superior')
 plt.plot(xp, Ps, marker='.', markerfacecolor='k', markeredgecolor='k', markersize=6, linestyle='None', label='Pressão Média Inferior')
-plt.xlabel("Comprimento da Fratura [m]")
+plt.xlabel("Comprimento da Fratura [m]", fontsize=12)
 # plt.xlabel("Nós dos Elementos na Vizinhança")
-plt.ylabel("Pressão [Pa]")
+plt.ylabel("Pressão [Pa]", fontsize=12)
+plt.xticks(fontsize=12)
+plt.yticks(fontsize=12)
 plt.legend()
 plt.grid()
 plt.savefig('/home/keveent/PyEFVLib/Hydraulic_Fracture/Resultados/p_elements.pdf', dpi=1200)
@@ -102,46 +109,12 @@ def get_p_tip(results):
 
 p_tip = get_p_tip(results)
 plt.plot(p_tip)
-plt.xlabel("Passo de Tempo")
-plt.ylabel("Pressão na Ponta da Fratura [Pa]")
+plt.xlabel("Passo de Tempo", fontsize=12)
+plt.ylabel("Pressão na Ponta da Fratura [Pa]", fontsize=12)
+plt.xticks(fontsize=12)
+plt.yticks(fontsize=12)
 plt.grid()
 plt.savefig('/home/keveent/PyEFVLib/Hydraulic_Fracture/Resultados/p_tip.pdf', dpi=1200)
 plt.figure()
-
-# plt.plot(p_tip)
-# plt.xlabel("Tempo [s]")
-# plt.ylabel("Pressão na Ponta da Fratura [Pa]")
-# plt.grid()
-# plt.savefig('p_tip2.pdf', dpi=1200)
-# plt.figure()
-
-# def get_face_pressure(FINAL_PRESSURE):
-#     NODES_INDEX_SUP, NODES_COORD_SUP = mesh_reader.get_nodes_coord_sup(BOUNDARY_SUP)
-#     NODES_INDEX_INF, NODES_COORD_INF = mesh_reader.get_nodes_coord_inf(BOUNDARY_INF)
-#     face_sup_indices = np.unique(NODES_INDEX_SUP)
-#     face_inf_indices = np.unique(NODES_INDEX_INF)
-#     face_sup = []
-#     face_inf = []
-#     for i in range(0, len(face_sup_indices)):
-#         face_sup.append(FINAL_PRESSURE[face_sup_indices[i]])
-#     for i in range(0, len(face_inf_indices)):
-#         face_inf.append(FINAL_PRESSURE[face_inf_indices[i]])
-#     face_sup = np.array(face_sup, dtype=float)
-#     face_inf = np.array(face_inf, dtype=float)
-#     face_inf = np.flip(face_inf)
-#     return face_sup, face_inf
-    
-    
-# # face_sup, face_inf = get_face_pressure(FINAL_PRESSURE)
-# # plt.ticklabel_format(axis="y", useOffset=False, style="plain")
-# # plt.plot(xu, face_sup, linewidth=1.5, label='Pressão na Face Superior')
-# # plt.plot(xu, face_inf, marker='.', markerfacecolor='k', markeredgecolor='k', markersize=6, linestyle='None', label='Pressão na Face Inferior')
-# # # plt.xlabel("Comprimento da Fratura [m]")
-# # plt.xlabel("Número de Elementos na Vizinhança")
-# # plt.ylabel("Pressão [Pa]")
-# # plt.legend()
-# # plt.grid()
-# # plt.savefig('p_faces.pdf', dpi=1200)
-# # plt.figure()
 
 plt.show()

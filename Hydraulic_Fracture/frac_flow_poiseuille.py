@@ -157,7 +157,7 @@ def get_b_tip(Pf_Old, Pn, Ps, Ptip):
     Ap0 = get_Ap0()
     Aw = get_Aw()
     Ae = get_Ae()
-    Pbw = 5e6
+    Pbw = 1e10
     Pbe = 1e3
     An = get_An()
     As = get_As()

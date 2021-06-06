@@ -69,6 +69,10 @@ def get_u_and_p(RESULTS_TYPE):
     Pf = np.array(Pf, dtype=float) 
     return u, Pf
 
+def unique(array):
+    uniq, index = np.unique(array, return_index=True)
+    return uniq[index.argsort()]
+
 def get_leakoff():
     # ds = mesh_reader.get_ds()
     leak_sup = []
@@ -83,8 +87,11 @@ def get_leakoff():
             leak_inf.append(row)
     leak_sup = np.array(leak_sup, dtype=float)
     leak_inf = np.array(leak_inf, dtype=float)
-    leak_sup = np.unique(leak_sup)
-    leak_inf = np.unique(leak_inf)
+    # leak_sup = np.unique(leak_sup)
+    # leak_inf = np.unique(leak_inf)
+    leak_sup = unique(leak_sup)
+    leak_inf = unique(leak_inf)
+    leak_inf = np.flip(leak_inf)
     leakoff = np.zeros(len(leak_sup))
     for i in range(0, len(leakoff)):
         leakoff[i] = leak_sup[i] + leak_inf[i]
@@ -104,11 +111,14 @@ def get_leakoff_ds(leakoff):
             leak_inf.append(row)
     leak_sup = np.array(leak_sup, dtype=float)
     leak_inf = np.array(leak_inf, dtype=float)
-    leak_sup = np.unique(leak_sup)
-    leak_inf = np.unique(leak_inf)
+    # leak_sup = np.unique(leak_sup)
+    # leak_inf = np.unique(leak_inf)
+    leak_sup = unique(leak_sup)
+    leak_inf = unique(leak_inf)
     for i in range(0, len(leak_sup)):
         leak_sup[i] = ds[i] * leak_sup[i]
         leak_inf[i] = ds[i] * leak_inf[i]
+    leak_inf = np.flip(leak_inf)
     leakoff = np.zeros(len(leak_sup))
     for i in range(0, len(leakoff)):
         leakoff[i] = leak_sup[i] + leak_inf[i]
@@ -150,12 +160,6 @@ def get_permeabilities():
     medium_permeability = np.full(len(D), 2*PERMEABILITY)
     return frac_permeabity, medium_permeability
 
-frac_permeabity, medium_permeability = get_permeabilities()
-# plt.plot(xu, frac_permeabity, label='Permeabilidade da Fratura')
-# plt.plot(xu, medium_permeability, label='Permeabilidade do Meio')
-# plt.grid()
-# plt.figure()
-
 u, Pf = get_u_and_p(RESULTS_TYPE)
 
 leakoff = get_leakoff()
@@ -164,24 +168,17 @@ leakoff_ds = get_leakoff_ds(leakoff)
 leakoff_acum_ds = np.cumsum(leakoff_ds)
 
 mass_flow = get_mass_flow(u)
-mass_flow_diff = get_flow_diff(mass_flow)
-mass_flow_avg = get_average(mass_flow)
-mass_flow_avg_dx = np.zeros(len(mass_flow_diff))
-for i in range(0, len(mass_flow_avg)):
-    mass_flow_avg_dx[i] = mass_flow_diff[i] / dx[i]
-
-mass_flow2 = np.zeros(len(mass_flow))
-for i in range(0, len(mass_flow2)):
-    mass_flow2[i] = (mass_flow[-1] - mass_flow[i])
 
 mass_flow_acum = np.cumsum(mass_flow)
-mass_flow_slope = get_slope(xu, mass_flow)
-# mass_flow_slope = (np.diff(mass_flow))/(np.diff(xu))
+# mass_flow_slope = get_slope(xu, mass_flow)
+mass_flow_slope = (np.diff(mass_flow))/(np.diff(xu))
 
 plt.plot(xp, leakoff_acum_ds, label='Leakoff Acumulado')
 plt.plot(xu, mass_flow, label='Vazão na Fratura')
-plt.xlabel('Comprimento da Fratura [m]')
-plt.ylabel('Fluxos [m²/s]')
+plt.xlabel('Comprimento da Fratura [m]', fontsize=12)
+plt.ylabel('Fluxos [m³/s]', fontsize=12)
+plt.xticks(fontsize=12)
+plt.yticks(fontsize=12)
 plt.legend()
 plt.grid()
 plt.savefig('/home/keveent/PyEFVLib/Hydraulic_Fracture/Resultados/flows_var.pdf', dpi=1200, bbox_inches='tight')
@@ -190,8 +187,10 @@ plt.figure()
 
 plt.plot(xp, leakoff, label='Velocidade do Leakoff')
 plt.plot(xp, mass_flow_slope, label='Inclinação da Vazão na Fratura')
-plt.xlabel('Comprimento da Fratura [m]')
-plt.ylabel('Velocidades [m/s]')
+plt.xlabel('Comprimento da Fratura [m]', fontsize=12)
+plt.ylabel('Velocidades [m/s]', fontsize=12)
+plt.xticks(fontsize=12)
+plt.yticks(fontsize=12)
 plt.legend()
 plt.grid()
 plt.savefig('/home/keveent/PyEFVLib/Hydraulic_Fracture/Resultados/vels_var.pdf', dpi=1200, bbox_inches='tight')
@@ -200,23 +199,28 @@ plt.figure()
 
 plt.plot(xu, mass_flow, label='Vazão na Fratura')
 plt.plot(xp, leakoff_ds, label='Vazão de Leakoff')
-plt.xlabel('Comprimento da Fratura [m]')
-plt.ylabel('Fluxos [m²/s]')
+plt.xlabel('Comprimento da Fratura [m]', fontsize=12)
+plt.ylabel('Fluxos [m³/s]', fontsize=12)
+plt.xticks(fontsize=12)
+plt.yticks(fontsize=12)
 plt.legend()
 plt.grid()
 plt.savefig('/home/keveent/PyEFVLib/Hydraulic_Fracture/Resultados/flow_compar.pdf', dpi=1200, bbox_inches='tight')
 plt.figure()
 
-print((mass_flow_slope+leakoff))
-mass_diff = mass_flow_slope+leakoff
-plt.plot(xp, mass_diff)
-plt.xlabel('Comprimento da Fratura [m]')
-plt.ylabel('Fluxos [m²/s]')
-plt.grid()
-plt.savefig('/home/keveent/PyEFVLib/Hydraulic_Fracture/Resultados/mass_diff.pdf', dpi=1200, bbox_inches='tight')
-plt.figure()
-
 sum_leakoff = np.sum(leakoff_ds)
-print(mass_flow[0]-sum_leakoff)
+# print(mass_flow[0]-sum_leakoff)
+# print((mass_flow[0]-sum_leakoff)/mass_flow[0])
+
+def mass_conservation(mass_flow, leakoff_ds):
+    mass_conservation = []
+    for i in range(0, len(mass_flow)-1):
+        mass_conservation.append(mass_flow[i]-leakoff_ds[i]-mass_flow[i+1])
+    return mass_conservation
+
+mass_conservation = mass_conservation(mass_flow, leakoff_ds)
+cm_norm = []
+for i in range(0, len(mass_flow)-1):
+    cm_norm.append(mass_conservation[i]/mass_flow[i])
 
 plt.show()

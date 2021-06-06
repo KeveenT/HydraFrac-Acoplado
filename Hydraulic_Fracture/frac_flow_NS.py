@@ -101,10 +101,10 @@ def build_A(): #Monta a matriz A
         A[i, nx+i+1] = Aupe[i]
     for i in range(0, len(Aupp)):
         A[nu+i, nu+i] = Aupp[i]
-    A[0, nu] = 2 * ((D[0] + Dp[0])/2) #Condições de Contorno de pressão prescrita
-    # for i in range(1, nx+nu):
-    #     A[0, i] = 0
-    # A[0, 0] = 1
+    # A[0, nu] = 2 * ((D[0] + Dp[0])/2) #Condições de Contorno de pressão prescrita
+    for i in range(1, nx+nu):
+        A[0, i] = 0
+    A[0, 0] = 1
     for i in range(nx, nx+nu):
         A[nx, i-1] = 0
     # A[nx, nx-1] = -1
@@ -131,10 +131,10 @@ def get_A(S_star): #Retorna a matriz A com os termos advectivos
         A[nu+m, m] += -DENSITY * D[m]
     for m in range(0, nx):
         A[nu+m, m+1] += DENSITY * D[m+1]
-    A[0, nu] = 2 * ((D[0] + Dp[0])/2) #Condições de Contorno de pressão prescrita
-    # for i in range(1, nx+nu):
-    #     A[0, i] = 0
-    # A[0, 0] = 1
+    # A[0, nu] = 2 * ((D[0] + Dp[0])/2) #Condições de Contorno de pressão prescrita
+    for i in range(1, nx+nu):
+        A[0, i] = 0
+    A[0, 0] = 1
     for i in range(nx, nx+nu):
         A[nx, i-1] = 0
     # A[nx, nx-1] = -1
@@ -158,9 +158,9 @@ def get_b(S_old, Pn, Ps):
             i = i + 1
             j = j + 1
         k = k + 1
-    b[0] +=  2 * P_entrada * ((D[0] + Dp[0])/2) #+ ((DENSITY * (dxu[0]) * D[0] * S_old[0]) / (dt))
+    # b[0] +=  2 * P_entrada * ((D[0] + Dp[0])/2) #+ ((DENSITY * (dxu[0]) * D[0] * S_old[0]) / (dt))
     # b[-1] = 0
-    # b[0] += massa/(DENSITY * D[0])
+    b[0] += massa/(DENSITY * D[0])
     return b
 
 #Solver

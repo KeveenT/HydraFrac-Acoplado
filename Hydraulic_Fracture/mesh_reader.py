@@ -22,11 +22,15 @@ def get_frac_length():
     frac_length = int(FRAC_LENGTH)
     return frac_length
 
+def unique(array):
+    uniq, index = np.unique(array, return_index=True)
+    return uniq[index.argsort()]
+
 def get_nodes_coord(BOUNDARY):
     physical_index = mesh.field_data[BOUNDARY][0]
     edges_index = np.where(mesh.cell_data['gmsh:physical'][0] == physical_index)[0]
     nodes_index = mesh.cells[0][1][edges_index]
-    nodes_coord = mesh.points[np.unique(nodes_index)]
+    nodes_coord = mesh.points[unique(nodes_index)]
     return nodes_index, nodes_coord
 
 NODES_INDEX_SUP, NODES_COORD_SUP = get_nodes_coord(BOUNDARY_SUP)

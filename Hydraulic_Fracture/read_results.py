@@ -86,6 +86,10 @@ def get_reynolds(u):
         Re[i] = (DENSITY * u[i] * 2 * D[i]) / VISCOSITY
     return Re
 
+def unique(array):
+    uniq, index = np.unique(array, return_index=True)
+    return uniq[index.argsort()]
+
 def get_leakoff():
     ds = mesh_reader.get_ds()
     leak_sup = []
@@ -100,24 +104,26 @@ def get_leakoff():
             leak_inf.append(row)
     leak_sup = np.array(leak_sup, dtype=float)
     leak_inf = np.array(leak_inf, dtype=float)
-    leak_sup = np.unique(leak_sup)
-    leak_inf = np.unique(leak_inf)
+    # leak_sup = np.unique(leak_sup)
+    # leak_inf = np.unique(leak_inf)
+    leak_sup = unique(leak_sup)
+    leak_inf = unique(leak_inf)
     for i in range(0, len(leak_sup)):
         leak_sup[i] = ds[i] * leak_sup[i]
         leak_inf[i] = ds[i] * leak_inf[i]
+    leak_inf = np.flip(leak_inf)
     leakoff = np.zeros(len(leak_sup))
     for i in range(0, len(leakoff)):
         leakoff[i] = leak_sup[i] + leak_inf[i]
     np.savetxt("/home/keveent/PyEFVLib/Hydraulic_Fracture/Resultados/leakoff.csv", leakoff, delimiter=",")
     return leak_sup, leak_inf, leakoff
 
-def get_mass_conservation_ns(u, leak_sup, leak_inf):
-    mass_conservation_ns = []
-    for i in range(0, len(D)-1):
-        mass_conservation_ns.append((u[i+1]*D[i+1])-abs(u[i]*D[i]+leak_inf[i]+leak_sup[i]))
-        # mass_conservation_ns.append((u[i]*D[i]-u[i+1]*D[i+1])-(leak_inf[i]+leak_sup[i]))
-    mass_conservation_ns = np.array(mass_conservation_ns, dtype=float)
-    return mass_conservation_ns
+def get_mass_conservation(mass_flow, leakoff_n, leakoff_s):
+    mass_conservation = []
+    for i in range(0, len(leakoff_n)):
+        mass_conservation.append(mass_flow[i] - mass_flow[i+1] - (leakoff_n[i] + leakoff_s[i]))
+    mass_conservation = np.array(mass_conservation, dtype=float)
+    return mass_conservation
 
 def get_mass_flow(u):
     mass_flow = []
@@ -135,18 +141,20 @@ def get_pressure_field():
     pressure_field = pd.read_csv(pressure_field_file)[last_step]
     return pressure_field
 
-def get_mass_conservation(mass_flow, leakoff):
-    mass_conservation = []
-    for i in range(0, len(mass_flow)-1):
-        mass_conservation.append(mass_flow[i] - (mass_flow[i+1]+leakoff[i]))
-    mass_conservation = np.array(mass_conservation, dtype=float)
-    return mass_conservation
+# def get_mass_conservation(mass_flow, leakoff):
+#     mass_conservation = []
+#     for i in range(0, len(mass_flow)-1):
+#         mass_conservation.append(mass_flow[i] - (mass_flow[i+1]+leakoff[i]))
+#     mass_conservation = np.array(mass_conservation, dtype=float)
+#     return mass_conservation
 
 
 no_leak_iterations = get_no_leak_iterations()
 plt.plot(no_leak_iterations)
-plt.xlabel("Passos de Tempo")
-plt.ylabel("Número de Iterações Leakoff")
+plt.xlabel("Passos de Tempo", fontsize=12)
+plt.ylabel("Número de Iterações Leakoff", fontsize=12)
+plt.xticks(fontsize=12)
+plt.yticks(fontsize=12)
 plt.grid()
 plt.savefig('/home/keveent/PyEFVLib/Hydraulic_Fracture/Resultados/iterations.pdf', dpi=1200, bbox_inches='tight')
 plt.figure()
@@ -155,8 +163,10 @@ u, Pf = get_u_and_p(RESULTS_TYPE)
 
 plt.ticklabel_format(axis="y", useOffset=False, style="sci")
 plt.plot(xp, Pf, linewidth=1.5)
-plt.xlabel("Comprimento da Fratura [m]")
-plt.ylabel("Pressão [Pa]")
+plt.xlabel("Comprimento da Fratura [m]", fontsize=12)
+plt.ylabel("Pressão [Pa]", fontsize=12)
+plt.xticks(fontsize=12)
+plt.yticks(fontsize=12)
 plt.grid()
 plt.savefig('/home/keveent/PyEFVLib/Hydraulic_Fracture/Resultados/p.pdf', dpi=1200, bbox_inches='tight')
 plt.figure()
@@ -164,15 +174,19 @@ plt.figure()
 Re = get_reynolds(u)
 
 plt.plot(xu, Re, linewidth=1.5)
-plt.xlabel("Comprimento da Fratura [m]")
-plt.ylabel("Número de Reynolds Local")
+plt.xlabel("Comprimento da Fratura [m]", fontsize=12)
+plt.ylabel("Número de Reynolds Local", fontsize=12)
+plt.xticks(fontsize=12)
+plt.yticks(fontsize=12)
 plt.grid()
 plt.savefig('/home/keveent/PyEFVLib/Hydraulic_Fracture/Resultados/re.pdf', dpi=1200, bbox_inches='tight')
 plt.figure()
 
-plt.plot(xu, u, linewidth=1.5)
-plt.xlabel("Comprimento da Fratura [m]")
-plt.ylabel("Velocidade [m/s]")
+plt.plot(xu[:-1], u[:-1], linewidth=1.5)
+plt.xlabel("Comprimento da Fratura [m]", fontsize=12)
+plt.ylabel("Velocidade [m/s]", fontsize=12)
+plt.xticks(fontsize=12)
+plt.yticks(fontsize=12)
 plt.grid()
 plt.savefig('/home/keveent/PyEFVLib/Hydraulic_Fracture/Resultados/v.pdf', dpi=1200, bbox_inches='tight')
 plt.figure()
@@ -181,31 +195,37 @@ leak_sup, leak_inf, leakoff = get_leakoff()
 plt.ticklabel_format(axis="y", useOffset=False, style="sci")
 plt.plot(xp, leak_sup, label='Leakoff na Face Superior')
 plt.plot(xp, leak_inf, marker='.', markerfacecolor='k', markeredgecolor='k', markersize=6, linestyle='None',  label='Leakoff na Face Inferior')
-plt.xlabel("Comprimento da Fratura [m]")
-plt.ylabel("Leakoff [m²/s]")
+plt.xlabel("Comprimento da Fratura [m]", fontsize=12)
+plt.ylabel("Leakoff [m³/s]", fontsize=12)
+plt.xticks(fontsize=12)
+plt.yticks(fontsize=12)
 plt.grid()
 plt.legend()
 plt.savefig('/home/keveent/PyEFVLib/Hydraulic_Fracture/Resultados/leakoff.pdf', dpi=1200, bbox_inches='tight')
 plt.figure()
 
-# mass_conservation = get_mass_conservation_ns(u, leak_sup, leak_inf)
-# #plt.plot(xp, np.round(mass_conservation,7))
-# plt.plot(xp, mass_conservation)
-# plt.xlabel("Comprimento da Fratura")
-# plt.ylabel("Diferença de Vazão")  
-# plt.grid()
-# # plt.savefig('/home/keveent/PyEFVLib/Hydraulic_Fracture/Resultados/conservação.pdf', dpi=1200, bbox_inches='tight')
-# plt.figure()
-
 mass_flow = get_mass_flow(u)
 plt.plot(xu, mass_flow, linewidth=1.5)
-plt.xlabel("Comprimento da Fratura")
-plt.ylabel("Vazão")  
+plt.xlabel("Comprimento da Fratura [m]", fontsize=12)
+plt.ylabel("Vazão Volumétrica [m³/s]", fontsize=12) 
+plt.xticks(fontsize=12)
+plt.yticks(fontsize=12) 
 plt.grid()
 plt.savefig('/home/keveent/PyEFVLib/Hydraulic_Fracture/Resultados/fluxo.pdf', dpi=1200, bbox_inches='tight')
 plt.figure()
 
-mass_conservation = get_mass_conservation(mass_flow, leakoff)
+# mass_conservation = get_mass_conservation(mass_flow, leakoff)
+# plt.plot(xp, mass_conservation)
+# plt.xlabel("Comprimento da Fratura [m]", fontsize=12)
+# plt.ylabel("Diferença de Vazão", fontsize=12)  
+# plt.xticks(fontsize=12)
+# plt.yticks(fontsize=12)
+# plt.grid()
+# plt.savefig('/home/keveent/PyEFVLib/Hydraulic_Fracture/Resultados/conservação.pdf', dpi=1200, bbox_inches='tight')
+# plt.figure()
+
+mass_conservation = get_mass_conservation(mass_flow, leak_sup, leak_inf)
+#plt.plot(xp, np.round(mass_conservation,7))
 plt.plot(xp, mass_conservation)
 plt.xlabel("Comprimento da Fratura")
 plt.ylabel("Diferença de Vazão")  
